@@ -1,49 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Loader } from 'lucide-react';
 
 const OrganizerLogin = () => {
-    const [email, setEmail] = useState('');
-    const [otp, setOtp] = useState('');
-    const [step, setStep] = useState(1);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const { sendOtp, login, logout } = useAuth();
-
+    const { logout } = useAuth();
 
     useEffect(() => {
         logout();
     }, []);
-
-    const handleSendOtp = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-        try {
-            await sendOtp(email);
-            setStep(2);
-        } catch (err) {
-            setError('Failed to send OTP. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-        try {
-            await login(email, otp);
-            navigate('/create-event');
-        } catch (err) {
-            setError('Invalid OTP or expired.');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const GoogleIcon = () => (
         <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -55,118 +20,33 @@ const OrganizerLogin = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/30">
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
+                <div className="text-center">
+                    <img src="/nst-logo.png" alt="NST Events" className="mx-auto h-12 w-auto" />
+                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+                        Host an Event
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                        Organizer login for NST Events
+                    </p>
+                </div>
 
-            <div className="flex items-center justify-center min-h-screen p-4">
-                <div className="w-full max-w-md">
-                    <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-
-                        <div className="px-8 pt-8 pb-6 text-center">
-                            <img src="/nst-logo.png" alt="NST Events" className="w-16 h-16 mx-auto mb-6" />
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                                {step === 1 ? 'Host an Event' : 'Verify Code'}
-                            </h2>
-                            <p className="text-gray-500">
-                                {step === 1
-                                    ? 'Organizer login for NST Events'
-                                    : `Enter the code sent to ${email}`
-                                }
-                            </p>
-                        </div>
-
-                        <div className="px-8 pb-8">
-                            {error && (
-                                <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
-                                    <p className="text-sm text-red-600 font-medium">{error}</p>
-                                </div>
-                            )}
-
-                            {step === 1 ? (
-                                <form onSubmit={handleSendOtp} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="email" className="block text-sm font-bold text-gray-900">
-                                            Email Address
-                                        </label>
-                                        <input
-                                            id="email"
-                                            type="email"
-                                            required
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
-                                            placeholder="organizer@college.edu"
-                                        />
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-                                    >
-                                        {loading ? <Loader className="animate-spin h-5 w-5 mx-auto" /> : 'Continue'}
-                                    </button>
-
-                                    <div className="relative py-4">
-                                        <div className="absolute inset-0 flex items-center">
-                                            <div className="w-full border-t border-gray-200"></div>
-                                        </div>
-                                        <div className="relative flex justify-center text-sm">
-                                            <span className="px-2 bg-white text-gray-500 font-medium">Or continue with</span>
-                                        </div>
-                                    </div>
-
-                                    <a
-                                        href="http://localhost:5001/api/auth/google?role=ORGANIZER"
-                                        className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold py-3.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
-                                    >
-                                        <GoogleIcon />
-                                        <span>Google</span>
-                                    </a>
-                                </form>
-                            ) : (
-                                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="otp" className="block text-sm font-bold text-gray-900">
-                                            Verification Code
-                                        </label>
-                                        <input
-                                            id="otp"
-                                            type="text"
-                                            required
-                                            value={otp}
-                                            onChange={(e) => setOtp(e.target.value)}
-                                            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-center tracking-[0.5em] font-mono text-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"
-                                            placeholder="• • • • • •"
-                                            maxLength={6}
-                                        />
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-                                    >
-                                        {loading ? <Loader className="animate-spin h-5 w-5 mx-auto" /> : 'Verify & Login'}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setStep(1)}
-                                        className="w-full text-sm text-gray-500 hover:text-gray-900 underline decoration-1 underline-offset-2 transition-colors"
-                                    >
-                                        Edit email address
-                                    </button>
-                                </form>
-                            )}
-                        </div>
-
-                        <div className="bg-gray-50 px-8 py-4 text-center border-t border-gray-100">
-                            <p className="text-xs text-gray-500">
-                                By continuing, you agree to NST Events's <a href="#" className="underline hover:text-gray-800">Terms</a> and <a href="#" className="underline hover:text-gray-800">Privacy Policy</a>.
-                            </p>
-                        </div>
+                <div className="mt-8 space-y-6">
+                    <div>
+                        <a
+                            href="http://localhost:5001/api/auth/google?role=ORGANIZER"
+                            className="w-full flex justify-center items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 gap-3 transition-colors"
+                        >
+                            <GoogleIcon />
+                            <span>Google</span>
+                        </a>
                     </div>
                 </div>
+
+                <p className="mt-2 text-center text-xs text-gray-500">
+                    By continuing, you agree to NST Events's <a href="#" className="underline hover:text-gray-900">Terms</a> and <a href="#" className="underline hover:text-gray-900">Privacy Policy</a>.
+                </p>
             </div>
         </div>
     );

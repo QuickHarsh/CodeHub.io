@@ -23,23 +23,13 @@ export const AuthProvider = ({ children }) => {
         checkUser();
     }, []);
 
-    const login = async (email, otp) => {
-        const { data } = await api.post('/auth/verify-otp', { email, otp });
-        setUser(data.user);
-        return data;
-    };
-
-    const sendOtp = async (email) => {
-        await api.post('/auth/send-otp', { email });
-    };
-
     const logout = async () => {
         await api.post('/auth/logout');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, sendOtp, logout, loading }}>
+        <AuthContext.Provider value={{ user, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

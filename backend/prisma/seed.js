@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
 const eventsData = [
     {
@@ -209,54 +209,67 @@ const eventsData = [
 ];
 
 async function main() {
-    console.log('Seeding database...');
+    console.log('Seeding database using MongoDB native driver...');
 
+    const client = new MongoClient(process.env.DATABASE_URL);
 
-    const organizer = await prisma.user.upsert({
-        where: { email: 'organizer@nst.edu' },
-        update: {},
-        create: {
-            email: 'organizer@nst.edu',
-            name: 'NST Organizer',
-            role: 'ORGANIZER',
-            password: 'password123',
-        },
-    });
+    try {
+        await client.connect();
+        const db = client.db();
 
-    console.log('Organizer created:', organizer.id);
+        const usersCollection = db.collection('User');
+        const eventsCollection = db.collection('Event');
+        const registrationsCollection = db.collection('Registration');
 
+        let organizer = await usersCollection.findOne({ email: 'organizer@nst.edu' });
 
-    await prisma.registration.deleteMany({});
-    console.log('Cleared existing registrations');
-    await prisma.event.deleteMany({});
-    console.log('Cleared existing events');
+        if (!organizer) {
+            const res = await usersCollection.insertOne({
+                email: 'organizer@nst.edu',
+                name: 'NST Organizer',
+                role: 'ORGANIZER',
+                password: 'password123',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            organizer = { _id: res.insertedId };
+        }
 
+        console.log('Organizer ID:', organizer._id.toString());
 
-    const idMapping = {};
+        await registrationsCollection.deleteMany({});
+        console.log('Cleared existing registrations');
+        await eventsCollection.deleteMany({});
+        console.log('Cleared existing events');
 
-    for (const eventData of eventsData) {
-        const { oldId, ...data } = eventData;
-        const event = await prisma.event.create({
-            data: {
+        const idMapping = {};
+
+        for (const eventData of eventsData) {
+            const { oldId, ...data } = eventData;
+
+            const eventDoc = {
                 ...data,
                 date: new Date(data.date),
                 registrationDeadline: new Date(data.registrationDeadline),
-                organizerId: organizer.id,
-            },
-        });
-        idMapping[oldId] = event.id;
-        console.log(`Created: ${event.title} -> ${event.id}`);
-    }
+                organizerId: organizer._id,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
 
-    console.log('\nID MAPPING FOR FRONTEND:');
-    console.log(JSON.stringify(idMapping, null, 2));
-}
+            const res = await eventsCollection.insertOne(eventDoc);
+            idMapping[oldId] = res.insertedId.toString();
+            console.log(`Created: ${eventDoc.title} -> ${res.insertedId.toString()}`);
+        }
 
-main()
-    .catch((e) => {
+        console.log('\nID MAPPING FOR FRONTEND:');
+        console.log(JSON.stringify(idMapping, null, 2));
+
+    } catch (e) {
         console.error(e);
         process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+    } finally {
+        await client.close();
+    }
+}
+
+main();

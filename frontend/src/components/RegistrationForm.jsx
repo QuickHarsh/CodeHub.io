@@ -18,18 +18,8 @@ const RegistrationForm = ({ event, onClose, onSubmit, initialData = {} }) => {
         location: '',
         ...initialData
     });
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
-    const [timer, setTimer] = useState(48);
-
-    useEffect(() => {
-        if (step === 2 && timer > 0) {
-            const interval = setInterval(() => setTimer(t => t - 1), 1000);
-            return () => clearInterval(interval);
-        }
-    }, [step, timer]);
-
 
     useEffect(() => {
         if (step === 3) {
@@ -46,18 +36,6 @@ const RegistrationForm = ({ event, onClose, onSubmit, initialData = {} }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-    };
-
-    const handleOtpChange = (index, value) => {
-        if (isNaN(value)) return;
-        const newOtp = [...otp];
-        newOtp[index] = value;
-        setOtp(newOtp);
-
-
-        if (value && index < 5) {
-            document.getElementById(`otp-${index + 1}`).focus();
         }
     };
 
