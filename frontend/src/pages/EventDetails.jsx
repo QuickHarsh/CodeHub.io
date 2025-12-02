@@ -127,7 +127,7 @@ const EventDetails = () => {
     const daysLeft = Math.ceil((new Date(event.registrationDeadline) - new Date()) / (1000 * 60 * 60 * 24));
 
     return (
-        <div className="bg-gray-50 min-h-screen pb-20">
+        <div className="bg-gray-50 min-h-screen pb-20 pt-20">
 
             {showRegistrationForm && (
                 <RegistrationForm
