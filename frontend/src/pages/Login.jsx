@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Loader } from 'lucide-react';
+import api from '../services/api';
 
 const Login = () => {
     const GoogleIcon = () => (
@@ -29,7 +30,7 @@ const Login = () => {
                 <div className="mt-8 space-y-6">
                     <div>
                         <a
-                            href="http://localhost:5001/api/auth/google"
+                            href={`${api.defaults.baseURL}/auth/google`}
                             className="w-full flex justify-center items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 gap-3 transition-colors"
                         >
                             <GoogleIcon />
@@ -42,7 +43,7 @@ const Login = () => {
                     By continuing, you agree to NST Events's <a href="#" className="underline hover:text-gray-900">Terms</a> and <a href="#" className="underline hover:text-gray-900">Privacy Policy</a>.
                 </p>
             </div>
-        </div>
+        </div >
     );
 };
 

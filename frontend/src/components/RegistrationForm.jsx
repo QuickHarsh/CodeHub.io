@@ -502,7 +502,7 @@ const RegistrationForm = ({ event, onClose, onSubmit, initialData = {} }) => {
 
                         <button
                             type="button"
-                            onClick={() => window.location.href = 'http://localhost:5001/api/auth/google'}
+                            onClick={() => window.location.href = `${api.defaults.baseURL}/auth/google`}
                             className="w-full bg-white border border-gray-200 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
